@@ -41,22 +41,18 @@ def make_data_and_cookies(r):
         vcode_link = doc.cssselect('form img')[0].get('src')
         vcv = doc.cssselect('input[name="_csrf"]')[0].get('value')
         img_url = BASE_URL + vcode_link
-        img = ses.get(img_url)
+        img = Image.open(BytesIO(ses.get(img_url).content))
         if configurations.USE_TESSERACT == True:
-            # write to the image file
-            with open(configurations.IMG_PATH, 'wb') as f:
-                f.write(img.content)
-            img = Image.open(configurations.IMG_PATH)
             vcode = pytesseract.image_to_string(img)
-            print(vcode)
+            # print(vcode)
         else:
-            img = Image.open(BytesIO(img.content)).convert('1')
+            img = img.convert('1')
             img = img.resize((int(img.width * 0.5), int(0.4 * img.height)))
             pt = img.load()
             for y in range(0, img.height - 4):
                 for x in range(img.width):
                     print('*' if pt[x, y] == 255 else ' ', end='')
-            print()
+                print()
             vcode = input('验证码：')
     return {
         "LoginForm[username]": USERNAME,
@@ -85,7 +81,7 @@ if __name__ == '__main__':
         ses = requests.session()
         ses.headers = HEADER
         data = make_data_and_cookies(ses)
-        ses.post(BASE_URL + LOGIN_URL, data=data).text  # login
+        ses.post(BASE_URL + LOGIN_URL, data=data)  # login
         ses.get(BASE_URL)
         try:
             result = get_info(ses)
