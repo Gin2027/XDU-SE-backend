@@ -42,7 +42,7 @@ def make_data_and_cookies(r):
         vcv = doc.cssselect('input[name="_csrf"]')[0].get('value')
         img_url = BASE_URL + vcode_link
         img = Image.open(BytesIO(ses.get(img_url).content))
-        if configurations.USE_TESSERACT == True:
+        if configurations.USE_TESSERACT :
             vcode = pytesseract.image_to_string(img)
             # print(vcode)
         else:
