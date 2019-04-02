@@ -15,18 +15,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with xidian-scripts.  If not, see <http://www.gnu.org/licenses/>.
 
-import auth.wx
-import credentials
-from datetime import datetime
+import os
 
+USE_TESSERACT = False
+# 是否用tesseract识别验证码，默认为否
 
-if __name__ == '__main__':
-    ses = auth.wx.get_login_session(
-        credentials.WX_USERNAME, credentials.WX_PASSWORD)
-    result = ses.post(
-        auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
-        param={}
-    ).json()
-    print("一卡通余额: " + str(int(result["allPurposeCardVO"]
-                              ["cardGeneralInfo"][0]["value"]) / 100) + " 元")
-    
+# tesseract
+TMP_DIR = os.path.expanduser("~/.xidian/")
+IMG_PATH = os.path.join(TMP_DIR, "img.jpg")
+TEXT_PATH = os.path.join(TMP_DIR, "result.txt")
+
+# export_timetable
+USE_LATEST_SEMESTER = True  # 自动获取学期学年信息, 若为True, 可以不填写下方配置项
+SCHOOL_YEAR = (2018, 2019)  # 学年度
+SEMESTER = '2'              # 学期
