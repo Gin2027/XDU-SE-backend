@@ -29,4 +29,13 @@ if __name__ == '__main__':
     ).json()
     print("一卡通余额: " + str(int(result["allPurposeCardVO"]
                               ["cardGeneralInfo"][0]["value"]) / 100) + " 元")
-    
+
+def card_balance(id,password):
+    ses = auth.wx.get_login_session(
+        id, password)
+    result = ses.post(
+        auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
+        param={}
+    ).json()
+    return ("一卡通余额: " + str(int(result["allPurposeCardVO"]
+                              ["cardGeneralInfo"][0]["value"]) / 100) + " 元")
