@@ -16,26 +16,16 @@
 # along with xidian-scripts.  If not, see <http://www.gnu.org/licenses/>.
 
 from auth.wx import get_login_session
-import credentials
 import json
-'''
-x = get_login_session(credentials.WX_USERNAME, credentials.WX_PASSWORD)
 
-print('尚未还的书:')
-for i in x.post(
-    'http://202.117.121.7:8080/oaCampus/library/getReturn.do',
-    param={"offset": 1}
-).json()['list']:
-    print('《'+i['title']+'》'+'应当在'+i['returnDate']+'之前还')
-'''
 
-def book(id,password):
+def book(id, password):
     book_list = []
-    x = get_login_session(id,password)
+    x = get_login_session(id, password)
     for i in x.post(
             'http://202.117.121.7:8080/oaCampus/library/getReturn.do',
             param={"offset": 1}
     ).json()['list']:
         item = '《' + i['title'] + '》' + '应当在' + i['returnDate'] + '之前还'
         book_list.append(item)
-    return json.dumps(book_list,ensure_ascii=False)
+    return json.dumps(book_list, ensure_ascii=False)

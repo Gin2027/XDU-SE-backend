@@ -16,17 +16,12 @@
 # along with xidian-scripts.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-import os
 import requests
 import pytesseract
 from lxml import html
 from PIL import Image
 from io import BytesIO
 from auth.GLOBAL import HEADER
-import configurations, credentials
-
-USERNAME = credentials.PAY_USERNAME
-PASSOWORD = credentials.PAY_PASSWORD
 
 BASE_URL = "https://pay.xidian.edu.cn"
 
@@ -34,29 +29,19 @@ PAY_INFO_URL = "/home"
 LOGIN_URL = "/login"
 
 
-def make_data_and_cookies(r):
+def make_data_and_cookies(ses, id, passwd):
     vcode = ''
     while len(vcode) is not 4:
-        doc = html.document_fromstring(r.get(BASE_URL).text)
+        doc = html.document_fromstring(ses.get(BASE_URL).text)
         vcode_link = doc.cssselect('form img')[0].get('src')
         vcv = doc.cssselect('input[name="_csrf"]')[0].get('value')
         img_url = BASE_URL + vcode_link
         img = Image.open(BytesIO(ses.get(img_url).content))
-        if configurations.USE_TESSERACT :
-            vcode = pytesseract.image_to_string(img)
-            # print(vcode)
-        else:
-            img = img.convert('1')
-            img = img.resize((int(img.width * 0.5), int(0.4 * img.height)))
-            pt = img.load()
-            for y in range(0, img.height - 4):
-                for x in range(img.width):
-                    print('*' if pt[x, y] == 255 else ' ', end='')
-                print()
-            vcode = input('验证码：')
+        img = img.convert('1')
+        vcode = pytesseract.image_to_string(img, lang='ar', config='--psm 7 digits')
     return {
-        "LoginForm[username]": USERNAME,
-        "LoginForm[password]": PASSOWORD,
+        "LoginForm[username]": id,
+        "LoginForm[password]": passwd,
         "LoginForm[verifyCode]": vcode,
         "_csrf": vcv,
         "login-button": ""
@@ -74,13 +59,11 @@ def get_info(ses):
     return used, rest
 
 
-if __name__ == '__main__':
-    if configurations.USE_TESSERACT and not os.path.exists(configurations.TMP_DIR):
-        os.mkdir(configurations.TMP_DIR)
+def info(id, passwd):
     while True:
         ses = requests.session()
         ses.headers = HEADER
-        data = make_data_and_cookies(ses)
+        data = make_data_and_cookies(ses, id, passwd)
         ses.post(BASE_URL + LOGIN_URL, data=data)  # login
         ses.get(BASE_URL)
         try:
@@ -89,4 +72,4 @@ if __name__ == '__main__':
         except:
             ses.close()
             time.sleep(1)
-    print("此月已使用流量 %s , 剩余 %s " % (result))
+    return "此月已使用流量 %s , 剩余 %s " % result
