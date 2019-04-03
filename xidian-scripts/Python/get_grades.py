@@ -18,6 +18,10 @@
 import auth.ids
 import json
 
+class grade:
+    def __init__(self,semester,lessons):
+        self.semester = semester
+        self.lessons = lessons
 
 def grades(id, password):
     ses = auth.ids.get_login_session(
@@ -51,7 +55,8 @@ def grades(id, password):
         if i['XNXQDM_DISPLAY'] not in courses.keys():
             courses[i['XNXQDM_DISPLAY']] = []
         courses[i['XNXQDM_DISPLAY']].append((i['XSKCM'].strip(), str(i['ZCJ']), str(i['XFJD'])))
-    dic = {}
+
+    grade_list = []
 
     for i in courses.keys():
         d = []
@@ -60,5 +65,6 @@ def grades(id, password):
                 d.append(j[0] + ':' + j[1])
             else:
                 d.append(j[0] + ':' + j[1] + ' (' + j[2] + ')')
-        dic.update({i: d})
-    return json.dumps(dic, ensure_ascii=False)
+        obj = grade(i,d)
+        grade_list.append(obj.__dict__)
+    return json.dumps(grade_list, ensure_ascii=False)
