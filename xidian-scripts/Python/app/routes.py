@@ -37,7 +37,7 @@ def search_bill_balance():
 def search_book():
     username = request.form.get('id')
     password = request.form.get('password')
-    return get_unreturned_books.book(id, password)
+    return get_unreturned_books.book(username, password)
 
 
 @app.route('/api/grades', methods=['POST'])
