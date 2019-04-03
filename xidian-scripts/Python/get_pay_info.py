@@ -27,7 +27,7 @@ BASE_URL = "https://pay.xidian.edu.cn"
 
 PAY_INFO_URL = "/home"
 LOGIN_URL = "/login"
-
+MAX_TRY = 2
 
 def make_data_and_cookies(ses, id, passwd):
     vcode = ''
@@ -39,6 +39,7 @@ def make_data_and_cookies(ses, id, passwd):
         img = Image.open(BytesIO(ses.get(img_url).content))
         img = img.convert('1')
         vcode = pytesseract.image_to_string(img, lang='ar', config='--psm 7 digits')
+        print(vcode)
     return {
         "LoginForm[username]": id,
         "LoginForm[password]": passwd,
@@ -60,7 +61,8 @@ def get_info(ses):
 
 
 def info(id, passwd):
-    while True:
+    result = -1
+    for tryCnt in range(MAX_TRY):
         ses = requests.session()
         ses.headers = HEADER
         data = make_data_and_cookies(ses, id, passwd)
@@ -71,5 +73,7 @@ def info(id, passwd):
             break
         except:
             ses.close()
-            time.sleep(1)
-    return "此月已使用流量 %s , 剩余 %s " % result
+    if result != -1:
+        return "此月已使用流量 %s , 剩余 %s " % result
+    else:
+        return "查询失败!"

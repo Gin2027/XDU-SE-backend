@@ -17,12 +17,16 @@
 
 import auth.wx
 
+
 def card_balance(id,password):
-    ses = auth.wx.get_login_session(
-        id, password)
-    result = ses.post(
-        auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
-        param={}
-    ).json()
+    try:
+        ses = auth.wx.get_login_session(
+            id, password)
+        result = ses.post(
+            auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
+            param={}
+        ).json()
+    except Exception:
+        return "查询失败!"
     return ("一卡通余额: " + str(int(result["allPurposeCardVO"]
                               ["cardGeneralInfo"][0]["value"]) / 100) + " 元")

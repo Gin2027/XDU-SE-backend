@@ -48,7 +48,7 @@ def card_bill(start_date, end_date, id, password):
         if len(result["expenseList"]) == 0:
             return "指定的时间段内没有消费记录。"
         for i in range(len(result["expenseList"])):
-            obj = bill(result["expenseList"][i][4]["dataValue"], result["expenseList"][i][4]["dataValue"],
+            obj = bill(result["expenseList"][i][4]["dataValue"], result["expenseList"][i][3]["dataValue"],
                        result["expenseList"][i][5]["dataValue"],
                        str(int(result["expenseList"][i][2]["dataValue"]) / 100))
             bill_list.append(obj.__dict__)

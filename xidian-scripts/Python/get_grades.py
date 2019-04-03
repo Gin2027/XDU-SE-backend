@@ -22,11 +22,9 @@ import json
 def grades(id, password):
     ses = auth.ids.get_login_session(
         'http://ehall.xidian.edu.cn:80//appShow', id, password)
-
     ses.get('http://ehall.xidian.edu.cn//appShow?appId=4768574631264620', headers={
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
     })
-
     querySetting = [
         {  # 学期
             'name': 'XNXQDM',
@@ -41,7 +39,6 @@ def grades(id, password):
         }
     ]
     courses = {}
-
     for i in ses.post(
             'http://ehall.xidian.edu.cn/jwapp/sys/cjcx/modules/cjcx/xscjcx.do',
             data={
@@ -54,16 +51,14 @@ def grades(id, password):
         if i['XNXQDM_DISPLAY'] not in courses.keys():
             courses[i['XNXQDM_DISPLAY']] = []
         courses[i['XNXQDM_DISPLAY']].append((i['XSKCM'].strip(), str(i['ZCJ']), str(i['XFJD'])))
-
     dic = {}
 
     for i in courses.keys():
-        d = {}
+        d = []
         for j in courses[i]:
             if j[2] == 'None':
-                d.update({j[0]: j[1]})
+                d.append(j[0] + ':' + j[1])
             else:
-                d.update({j[0]: j[1] + ' (' + j[2] + ')'})
+                d.append(j[0] + ':' + j[1] + ' (' + j[2] + ')')
         dic.update({i: d})
-
     return json.dumps(dic, ensure_ascii=False)
