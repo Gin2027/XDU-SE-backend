@@ -16,9 +16,11 @@
 # along with xidian-scripts.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+import bs4
+import re
 import requests
 import pytesseract
-from lxml import html
+import json
 from PIL import Image
 from io import BytesIO
 from auth.GLOBAL import HEADER
@@ -32,10 +34,9 @@ MAX_TRY = 2
 def make_data_and_cookies(ses, id, passwd):
     vcode = ''
     while len(vcode) is not 4:
-        doc = html.document_fromstring(ses.get(BASE_URL).text)
-        vcode_link = doc.cssselect('form img')[0].get('src')
-        vcv = doc.cssselect('input[name="_csrf"]')[0].get('value')
-        img_url = BASE_URL + vcode_link
+        soup = bs4.BeautifulSoup(ses.get(BASE_URL).text, "lxml")
+        img_url = BASE_URL + soup.find('img', id='loginform-verifycode-image').get('src')
+        vcv = soup.find('input', type='hidden').get('value')
         img = Image.open(BytesIO(ses.get(img_url).content))
         img = img.convert('1')
         vcode = pytesseract.image_to_string(img, lang='ar', config='--psm 7 digits')
@@ -52,16 +53,34 @@ def make_data_and_cookies(ses, id, passwd):
 def get_info(ses):
     """retrieve the data using the cookies"""
     info_url = BASE_URL + PAY_INFO_URL
-    s = ses.get(info_url).text
-    doc = html.document_fromstring(s)
-    result = doc.cssselect('tr[data-key="3"]')[0]
-    used = result.cssselect('td[data-col-seq="3"]')[0].text
-    rest = result.cssselect('td[data-col-seq="7"]')[0].text
-    return used, rest
+    ip_list = []
+    used = ""
+    rest = ""
+    charged = ""
+    filt = re.compile(r'>(.*)<')
+    soup = bs4.BeautifulSoup(ses.get(info_url).text, 'lxml')
+    tr_list = soup.find_all('tr')
+    for tr in tr_list:
+        td_list = bs4.BeautifulSoup(str(tr), 'lxml').find_all('td')
+        if len(td_list) == 0:
+            continue
+        elif len(td_list) == 4:
+            ip = filt.search(str(td_list[0])).group(1)
+            online_time = filt.search(str(td_list[1])).group(1)
+            used_t = filt.search(str(td_list[2])).group(1)
+            if used_t == '':
+                continue
+            ip_list.append((ip, online_time, used_t))
+        elif len(td_list) == 6:
+            used = filt.search(str(td_list[1])).group(1)
+            rest = filt.search(str(td_list[2])).group(1)
+            charged = filt.search(str(td_list[3])).group(1)
+    return ip_list, used, rest, charged
 
 
 def info(id, passwd):
     result = -1
+    return_info = []
     for tryCnt in range(MAX_TRY):
         ses = requests.session()
         ses.headers = HEADER
@@ -74,6 +93,12 @@ def info(id, passwd):
         except:
             ses.close()
     if result != -1:
-        return "此月已使用流量 %s , 剩余 %s " % result
+        ip_cnt = len(result[0])
+        return_info.append("共有 %d 设备在线" % ip_cnt)
+        if ip_cnt != 0:
+            for ip in result[0]:
+                return_info.append("ip 地址: %s , 上线时间 %s , 使用流量 %s" % ip)
+        return_info.append("此月已使用流量 %s , 剩余 %s , 充值剩余 %s" % (result[1], result[2], result[3]))
     else:
-        return "查询失败!"
+        return_info.append("查询失败!")
+    return json.dumps(return_info, ensure_ascii=False)
