@@ -27,6 +27,6 @@ def card_balance(id,password):
             param={}
         ).json()
     except Exception:
-        return "查询失败!"
-    return ("一卡通余额: " + str(int(result["allPurposeCardVO"]
-                              ["cardGeneralInfo"][0]["value"]) / 100) + " 元")
+        return "查询失败"
+    return ('一卡通余额: ' + str(int(result['allPurposeCardVO']
+                              ['cardGeneralInfo'][0]['value']) / 100) + ' 元')

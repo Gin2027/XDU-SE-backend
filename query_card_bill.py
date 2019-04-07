@@ -30,12 +30,15 @@ class bill:
 
 def card_bill(start_date, end_date, id, password):
     bill_list = []
-    ses = auth.wx.get_login_session(
-        id, password)
-    result = ses.post(
-        auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
-        param={}
-    ).json()
+    try:
+        ses = auth.wx.get_login_session(
+            id, password)
+        result = ses.post(
+            auth.wx.BASE + 'infoCampus/playCampus/getAllPurposeCard.do',
+            param={}
+        ).json()
+    except:
+        return '查询失败!'
     if (datetime.strptime(end_date, "%Y-%m-%d") - datetime.strptime(start_date, "%Y-%m-%d")).days <= 30:
         param = '{{\"startDate\":\"{}\",' + \
                 '\"endDate\":\"{}\",' + \

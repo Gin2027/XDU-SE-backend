@@ -21,11 +21,14 @@ import json
 
 def book(id, password):
     book_list = []
-    x = get_login_session(id, password)
-    for i in x.post(
-            'http://202.117.121.7:8080/oaCampus/library/getReturn.do',
-            param={"offset": 1}
-    ).json()['list']:
-        item = '《' + i['title'] + '》' + '应当在' + i['returnDate'] + '之前还'
-        book_list.append(item)
+    try:
+        x = get_login_session(id, password)
+        for i in x.post(
+                'http://202.117.121.7:8080/oaCampus/library/getReturn.do',
+                param={"offset": 1}
+        ).json()['list']:
+            item = '《' + i['title'] + '》' + '应当在' + i['returnDate'] + '之前还'
+            book_list.append(item)
+    except:
+        return '查询失败!'
     return json.dumps(book_list, ensure_ascii=False)

@@ -5,6 +5,7 @@ import query_card_bill
 import get_unreturned_books
 import get_grades
 import get_pay_info
+import get_online_device
 
 
 @app.route('/index')
@@ -52,3 +53,10 @@ def search_zfw():
     username = request.form.get('id')
     password = request.form.get('password')
     return get_pay_info.info(username, password)
+
+
+@app.route('/api/online_device', methods=['POST'])
+def search_zfw_dev():
+    username = request.form.get('id')
+    password = request.form.get('password')
+    return get_online_device.info(username, password)

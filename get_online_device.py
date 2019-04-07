@@ -53,9 +53,7 @@ def make_data_and_cookies(ses, id, passwd):
 def get_info(ses):
     """retrieve the data using the cookies"""
     info_url = BASE_URL + PAY_INFO_URL
-    used = ""
-    rest = ""
-    charged = ""
+    ip_list = []
     filt = re.compile(r'>(.*)<')
     soup = bs4.BeautifulSoup(ses.get(info_url).text, 'lxml')
     tr_list = soup.find_all('tr')
@@ -63,16 +61,21 @@ def get_info(ses):
         td_list = bs4.BeautifulSoup(str(tr), 'lxml').find_all('td')
         if len(td_list) == 0:
             continue
+        elif len(td_list) == 4:
+            ip = filt.search(str(td_list[0])).group(1)
+            online_time = filt.search(str(td_list[1])).group(1)
+            used_t = filt.search(str(td_list[2])).group(1)
+            if used_t == '':
+                continue
+            ip_list.append((ip, online_time, used_t))
         elif len(td_list) == 6:
-            used = filt.search(str(td_list[1])).group(1)
-            rest = filt.search(str(td_list[2])).group(1)
-            charged = filt.search(str(td_list[3])).group(1)
             break
-    return used, rest, charged
+    return ip_list
 
 
 def info(id, passwd):
     result = []
+    return_info = []
     for tryCnt in range(MAX_TRY):
         ses = requests.session()
         ses.headers = HEADER
@@ -84,10 +87,10 @@ def info(id, passwd):
             break
         except:
             ses.close()
-
-    # print(result)
-    if len(result[0]) != 0:
-        return_info = '此月已使用流量 %s , 剩余 %s , 充值剩余 %s' % result
+    ip_cnt = len(result)
+    if ip_cnt != 0:
+        for ip in result:
+            return_info.append('ip 地址: %s , 上线时间 %s , 使用流量 %s' % ip)
     else:
-        return_info = '查询失败'
-    return return_info
+        return '查询失败'
+    return json.dumps(return_info, ensure_ascii=False)
