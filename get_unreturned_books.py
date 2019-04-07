@@ -30,5 +30,5 @@ def book(id, password):
             item = '《' + i['title'] + '》' + '应当在' + i['returnDate'] + '之前还'
             book_list.append(item)
     except:
-        return '查询失败!'
+        return '查询失败'
     return json.dumps(book_list, ensure_ascii=False)

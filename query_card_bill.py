@@ -38,7 +38,7 @@ def card_bill(start_date, end_date, id, password):
             param={}
         ).json()
     except:
-        return '查询失败!'
+        return '查询失败'
     if (datetime.strptime(end_date, "%Y-%m-%d") - datetime.strptime(start_date, "%Y-%m-%d")).days <= 30:
         param = '{{\"startDate\":\"{}\",' + \
                 '\"endDate\":\"{}\",' + \

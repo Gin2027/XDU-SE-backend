@@ -29,7 +29,8 @@ BASE_URL = "https://pay.xidian.edu.cn"
 
 PAY_INFO_URL = "/home"
 LOGIN_URL = "/login"
-MAX_TRY = 2
+MAX_TRY = 5
+
 
 def make_data_and_cookies(ses, id, passwd):
     vcode = ''
