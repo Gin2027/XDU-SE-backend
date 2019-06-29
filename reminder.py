@@ -62,14 +62,14 @@ def remind():
 
     users = fetch_all()
     for user in users:
-        if user[10] == 'true' and user[11] == '1':
+        if user[10] == 'True' and user[11] == '1':
             cash = check_card_balance(user[1], user[2])
             if cash < float(user[12]):
-                sql = "UPDATE remind SET CardBalance='false' WHERE id='%s'" % user[0]
+                sql = "UPDATE remind SET CardBalance='False' WHERE id='%s'" % user[0]
                 cursor.execute(sql)
                 send_mail(user[15], "余额不足", ("当前余额为%s，低于您设置的额度 %s！" % (str(cash), user[12])))
                 db.commit()
-        
+
     db.close()
 
 

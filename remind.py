@@ -1,9 +1,11 @@
 import pymysql
+import json
 
 
 def set_remind(form_dict):
-
-
+    form_dict = json.load(form_dict['json'])
+    for key in form_dict:
+        form_dict[key] = str(form_dict[key])
     db = pymysql.connect("api.ppoj.ac.cn", "ubuntu", "xdu-se-1603019", "remind")
     cursor = db.cursor()
 
