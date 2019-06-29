@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with xidian-scripts.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import bs4
 import re
 import requests
@@ -76,7 +75,7 @@ def get_info(ses):
 
 def info(id, passwd):
     result = []
-    return_info = []
+    return_info = ""
     for tryCnt in range(MAX_TRY):
         ses = requests.session()
         ses.headers = HEADER
@@ -91,7 +90,7 @@ def info(id, passwd):
     ip_cnt = len(result)
     if ip_cnt != 0:
         for ip in result:
-            return_info.append('ip 地址: %s , 上线时间 %s , 使用流量 %s' % ip)
+            return_info = return_info + 'ip 地址: %s , 上线时间 %s , 使用流量 %s ' % ip
     else:
         return '查询失败'
-    return json.dumps(return_info, ensure_ascii=False)
+    return return_info

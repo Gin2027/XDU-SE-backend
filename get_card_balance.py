@@ -18,7 +18,7 @@
 import auth.wx
 
 
-def card_balance(id,password):
+def card_balance(id, password):
     try:
         ses = auth.wx.get_login_session(
             id, password)
