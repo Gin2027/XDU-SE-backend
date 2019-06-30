@@ -59,8 +59,9 @@ def check_net_balance(id, passwd):
     if '不' in info:
         return 'F'
     else:
-        # print(info)
-        return re.search(r'([0-9]+\.[0-9]*)', info).group(0)
+        print(info)
+        tmp = re.search(r'剩余 ([0-9]+\.[0-9]*)([a-zA-Z])B', info)
+        return tmp.group(1) + tmp.group(2)
 
 def check_book(id, passwd):
     all_book = json.loads(get_unreturned_books.book(id, passwd))
@@ -135,11 +136,16 @@ def remind():
             try:
                 info = check_net_balance(user[3], user[4])
                 if info[0] != 'F':
-                    num = float(info)
+                    num = float(info[:-1])
+                    if info[-1] == 'M':
+                        num /= 1024.0
+                    if user[9] == '500':
+                        user[9] = '0.5'
                     if num < float(user[9]):
                         sql = "UPDATE remind SET NetworkLimit='False' WHERE id='%s'" % user[0]
                         cursor.execute(sql)
-                        text = '当前校园网剩余流量为 %s G, 小于设定的阈值 %s' % (info, user[9])
+                        text = '当前校园网剩余流量为 %sB , 小于设定的阈值 %s GB' % (info, user[9])
+                        # print(text)
                         send_mail(user[15], '流量提醒', text)
                 else:
                     sql = "UPDATE remind SET NetworkLimit='False' WHERE id='%s'" % user[0]
@@ -152,4 +158,5 @@ def remind():
 
 
 if __name__ == '__main__':
+    # print(check_net_balance('16030199026', '090699'))
     remind()
