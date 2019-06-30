@@ -1,6 +1,6 @@
 import pymysql
 import json
-
+import reminder
 
 def set_remind(form_dict):
     form_dict = json.loads(form_dict['json'])
@@ -61,4 +61,5 @@ def set_remind(form_dict):
         print("Error")
 
     db.close()
+    reminder.remind()
     return "success"
