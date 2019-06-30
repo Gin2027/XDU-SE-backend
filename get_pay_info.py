@@ -64,7 +64,7 @@ def get_info(ses):
         td_list = bs4.BeautifulSoup(str(tr), 'lxml').find_all('td')
         if len(td_list) == 0:
             continue
-        elif len(td_list) == 6:
+        elif len(td_list) >= 5:
             used = filt.search(str(td_list[1])).group(1)
             rest = filt.search(str(td_list[2])).group(1)
             charged = filt.search(str(td_list[3])).group(1)
@@ -85,10 +85,11 @@ def info(id, passwd):
             break
         except:
             ses.close()
-
-    # print(result)
     if len(result[0]) != 0:
-        return_info = '此月已使用流量 %s , 剩余 %s , 充值剩余 %s' % result
+        if '-' in result[2]:
+            return_info = '不限量套餐 已使用流量%s 到期时间%s' % (result[0], result[2])
+        else:
+            return_info = '此月已使用流量 %s , 剩余 %s , 充值剩余 %s' % result
     else:
         return_info = '查询失败'
     return return_info
