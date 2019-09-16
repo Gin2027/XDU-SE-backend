@@ -24,7 +24,7 @@ from PIL import Image
 from io import BytesIO
 from auth.GLOBAL import HEADER
 
-BASE_URL = "https://pay.xidian.edu.cn"
+BASE_URL = "https://zfw.xidian.edu.cn"
 
 PAY_INFO_URL = "/home"
 LOGIN_URL = "/login"
